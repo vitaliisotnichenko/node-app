@@ -6,12 +6,24 @@ const server = http.createServer( (req, resp) => {
     const method = req.method;
     if (url === '/') {
         resp.write('<html>Enter Message</html>');
-        resp.write('<form action="/message" method="POST"><input type="text"><button type="submit">Send</button></form>');
+        resp.write('<form action="/message" method="POST"><input type="text" name="message"><button type="submit">Send</button></form>');
         return resp.end();
     }
     if(url === '/message' && method === 'POST') {
-        fs.writeFileSync('message.txt', 'Dummy')
-        resp.writeHead(302, {'Location': '/'})
+        //Parsing request bodies
+        const body = [];
+        req.on('data', (chunk) => {
+            console.log(chunk)
+            body.push(chunk);
+        })
+        req.on('end', () => {
+            const parsedBody = Buffer.concat(body).toString();
+            console.log(parsedBody)
+            const message = parsedBody.split('=')[1];
+            fs.writeFileSync('message.txt', message);
+        })
+        resp.statusCode = 302;
+        resp.setHeader('Location', '/')
         return resp.end()
     }
 
