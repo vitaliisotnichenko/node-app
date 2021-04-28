@@ -18,13 +18,13 @@ const server = http.createServer( (req, resp) => {
         })
         req.on('end', () => {
             const parsedBody = Buffer.concat(body).toString();
-            console.log(parsedBody)
             const message = parsedBody.split('=')[1];
-            fs.writeFileSync('message.txt', message);
+            fs.writeFile('message.txt', message, err => {
+                resp.statusCode = 302;
+                resp.setHeader('Location', '/')
+                return resp.end()
+            });
         })
-        resp.statusCode = 302;
-        resp.setHeader('Location', '/')
-        return resp.end()
     }
 
     resp.setHeader('Content-Type', 'text/html');
